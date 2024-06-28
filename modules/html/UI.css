@@ -1,0 +1,27 @@
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.tab {
+    padding: 10px 20px;
+    background-color: #f1f1f1;
+    margin: 0 5px;
+    border-radius: 5px;
+}
+.tab.active {
+    background-color: #555;
+    color: #fff;
+}
+.content {
+    display: none;
+    text-align: center;
+}
+.content img {
+    display: block;
+    margin: 0 auto;
+    max-width: max-content;
+}
+.content.active {
+    display: block;
+}
