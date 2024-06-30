@@ -31,12 +31,11 @@ class SettingsManager {
 
 class CheatsheetRegister {
 
-    CheatsheetFolder := "cheatsheet"
     Cheatsheets := Map()
 
-    __New(CheatsheetConfig := "cheatsheet.ini") {
+    __New(CheatsheetFolder := "cheatsheet", CheatsheetConfig := "cheatsheet.ini") {
         
-    CheatsheetPath := Format("{1}\{2}", this.CheatsheetFolder, this.CheatsheetConfig)
+    CheatsheetPath := Format("{1}\{2}", CheatsheetFolder, CheatsheetConfig)
         CheatsheetList := IniRead(CheatsheetPath)
         
         For Cheatsheet in StrSplit(CheatSheetList, "`n") {
@@ -45,24 +44,27 @@ class CheatsheetRegister {
             this.Cheatsheets[Cheatsheet]["Type"] := IniRead(CheatsheetPath, Cheatsheet, "Type")
 
             ; If not default, must have match title and process
-            If Cheatsheet != "Default" {
+            If Cheatsheet != "default" {
                 this.Cheatsheets[Cheatsheet]["MatchTitle"] := IniRead(CheatsheetPath, Cheatsheet, "MatchTitle")
                 this.Cheatsheets[Cheatsheet]["MatchProcess"] := IniRead(CheatsheetPath, Cheatsheet, "MatchProcess")
             }
-            
-            this.Cheatsheets[Cheatsheet]["Files"] := StrSplit(IniRead(CheatsheetPath, Cheatsheet, "Files"), ";")
+            OutputDebug IniRead(CheatsheetPath, Cheatsheet, "Files")
+            this.Cheatsheets[Cheatsheet]["Files"] := StrSplit(IniRead(CheatsheetPath, Cheatsheet, "Files"), ",")
         }
     }
 
     MatchRule(MatchTitle, MatchProcess) {
         For CheatsheetKey, CheatsheetValue In this.Cheatsheets {
+            OutputDebug CheatsheetKey
             If CheatsheetKey != "default" {
-                If RegExMatch(this.Cheatsheets[CheatsheetKey]["MatchTitle"], MatchTitle) 
-                    Or RegExMatch(this.Cheatsheets[CheatsheetKey]["MatchProcess"], MatchProcess) {
-                    Return this.Cheatsheets[CheatsheetKey]
+                OutputDebug CheatsheetValue["MatchTitle"]
+                OutputDebug CheatsheetValue["MatchProcess"]
+                If RegExMatch(MatchTitle, CheatsheetValue["MatchTitle"]) 
+                    And RegExMatch(MatchProcess, CheatsheetValue["MatchProcess"]) {
+                    Return Array(CheatsheetKey, CheatsheetValue)
                 }
             }
         }
-        Return this.Cheatsheets["default"]
+        Return Array("default", this.Cheatsheets["default"])
     }
 }

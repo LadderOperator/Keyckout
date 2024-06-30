@@ -14,22 +14,28 @@ function getActiveTabIndex() {
 
 //Disable other keys, drag and right click
 document.addEventListener("keydown", (event) => {
-    let activeIndex = getActiveTabIndex();
     if (event.code === 'ArrowLeft') {
+        activeIndex = getActiveTabIndex();
         event.preventDefault();
         activeIndex = (activeIndex - 1 + tabs.length) % tabs.length;
         showTab(activeIndex);
     } else if (event.code === 'ArrowRight') {
+        activeIndex = getActiveTabIndex();
         event.preventDefault();
         activeIndex = (activeIndex + 1) % tabs.length;
         showTab(activeIndex);
-    } else if (event.code.indexOf("Arrow") === -1) {
-        event.preventDefault();
+    } else if (event.code.startsWith("Arrow")) {
+        return true
+    } else if (event.code.startsWith("Page")) {
+        return true
+    } else if (event.code === "Home" || event.code === "End") {
+        return true
     }
+    event.preventDefault();
 });
 document.addEventListener('mousedown', (event) => {
     event.preventDefault();
 });
-document.addEventListener('contextmenu', (event) => {
-    event.preventDefault();
-});
+// document.addEventListener('contextmenu', (event) => {
+//     event.preventDefault();
+// });

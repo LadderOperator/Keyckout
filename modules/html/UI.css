@@ -7,7 +7,6 @@
     padding: 10px 20px;
     background-color: #f1f1f1;
     margin: 0 5px;
-    border-radius: 5px;
 }
 .tab.active {
     background-color: #555;
@@ -16,12 +15,19 @@
 .content {
     display: none;
     text-align: center;
+    width: 100%;
 }
-.content img {
-    display: block;
+img .kimg {
     margin: 0 auto;
-    max-width: max-content;
+    padding: 0;
 }
 .content.active {
-    display: block;
+    display: inline-block;
+}
+.container {
+    width: 100%;
+}
+
+.hide{
+    display: none;
 }
