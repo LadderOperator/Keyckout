@@ -59,4 +59,14 @@ Files = Matplotlib_Cheatsheets_1.png,Matplotlib_Cheatsheets_2.png,Matplotlib_Beg
 
 ### 退出方式
 
-右键系统托盘图标。
+右键系统托盘图标，点击“Exit”。
+
+## 许可与鸣谢
+
+本程序采用[MIT](https://opensource.org/licenses/MIT)协议开源。
+
+在制作本程序的时候，使用了以下优秀的项目：
+
++ [AutoHotKey](https://www.autohotkey.com/)
++ WebView2.ahk 相关组件：[ahk_lib](https://github.com/thqby/ahk2_lib)
++ 演示文件：[Matplotlib Cheatsheets](https://github.com/matplotlib/cheatsheets)
