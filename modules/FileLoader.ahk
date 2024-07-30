@@ -54,6 +54,7 @@ class CheatsheetRegister {
     }
 
     MatchRule(MatchTitle, MatchProcess) {
+        MatchedCheatsheets := Array()
         For CheatsheetKey, CheatsheetValue In this.Cheatsheets {
             OutputDebug CheatsheetKey
             If CheatsheetKey != "default" {
@@ -61,10 +62,13 @@ class CheatsheetRegister {
                 OutputDebug CheatsheetValue["MatchProcess"]
                 If RegExMatch(MatchTitle, CheatsheetValue["MatchTitle"]) 
                     And RegExMatch(MatchProcess, CheatsheetValue["MatchProcess"]) {
-                    Return Array(CheatsheetKey, CheatsheetValue)
+                    MatchedCheatsheets.Push(Array(CheatsheetKey, CheatsheetValue))
                 }
             }
         }
-        Return Array("default", this.Cheatsheets["default"])
+        If MatchedCheatsheets.Length = 0 {
+            MatchedCheatsheets.Push(Array("default", this.Cheatsheets["default"]))
+        }
+        Return MatchedCheatsheets
     }
 }

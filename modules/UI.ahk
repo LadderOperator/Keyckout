@@ -20,7 +20,7 @@ class PopupWindow {
     DPIFactor := 1.0
     Transparency := 0.9
 
-    CurrentCheatsheet := 0
+    CurrentCheatsheet := Array()
 
 
     __New(Transparency, UseDPIScale) {
@@ -48,9 +48,19 @@ class PopupWindow {
 
     Update(ActiveWinTitle, ActiveWinProc) {
         MatchedCheatsheet := this.CheatsheetContent.MatchRule(ActiveWinTitle, ActiveWinProc)
-        If this.CurrentCheatsheet != MatchedCheatsheet[1] {
-            this.CurrentCheatsheet := MatchedCheatsheet[1]
-            DocHTML := this.HTMLContent.MakeDocHTML(MatchedCheatsheet*)
+        IsCheatsheetChanged := False
+        If this.CurrentCheatsheet.Length == MatchedCheatsheet.Length {
+            For Idx, Cheatsheet In MatchedCheatsheet {
+                If Cheatsheet[1] != this.CurrentCheatsheet[Idx][1] {
+                    IsCheatsheetChanged := True
+                }
+            }
+        } Else {
+            IsCheatsheetChanged := True
+        }
+        If IsCheatsheetChanged {
+            this.CurrentCheatsheet := MatchedCheatsheet
+            DocHTML := this.HTMLContent.MakeDocHTML(MatchedCheatsheet)
             this.WebView.NavigateToString(DocHTML)
             this.WebViewCore.MoveFocus(0) ; The most elegant way to focus on the  current tab
         } Else {
@@ -148,45 +158,55 @@ class HTMLComposer {
         CurrentTabHTML := this.Compose(this.TabTemplate, ReplacePair)
         Return CurrentTabHTML
     }
-    MakeTabsContentHTML(Cheatsheet, CheatsheetMap) {
+
+    MakeTabsContentHTML(MatchedCheatsheet) {
         TabsContentHTML := ""
-        For Idx, CheatsheetFile in CheatsheetMap["Files"] {
-            ReplacePair := []
-            If Idx == 1 {
-                ReplacePair.Push(["{{CONTENT_CLASS}}", "content active"])
-            } Else {
-                ReplacePair.Push(["{{CONTENT_CLASS}}", "content"])
-            }
-
-            ReplacePair.Push(["{{TAB_ID}}", String(Idx)])
-
-            SWitch CheatsheetMap["Type"] {
-                Case "pic": 
-                ContentReplacePair := [
-                    ["{{CHEATSHEET_FOLDER}}", Cheatsheet],
-                    ["{{CHEATSHEET_IMG}}", CheatsheetFile]
-                ]
-                ContentHTML := this.Compose(this.ImgTemplate, ContentReplacePair)
+        Idx := 0
+        For UsedCheatsheet in MatchedCheatsheet {
+            Cheatsheet := UsedCheatsheet[1]
+            CheatsheetMap := UsedCheatsheet[2]
+            For CheatsheetFile in CheatsheetMap["Files"] {
+                ReplacePair := []
+                Idx += 1
+                If Idx == 1 {
+                    ReplacePair.Push(["{{CONTENT_CLASS}}", "content active"])
+                } Else {
+                    ReplacePair.Push(["{{CONTENT_CLASS}}", "content"])
                 }
-            ReplacePair.Push(["{{CONTENT_HTML}}", ContentHTML])
-            TabsContentHTML := TabsContentHTML . this.Compose(this.TabContentTemplate, ReplacePair)
+    
+                ReplacePair.Push(["{{TAB_ID}}", String(Idx)])
+    
+                SWitch CheatsheetMap["Type"] {
+                    Case "pic": 
+                        ContentReplacePair := [
+                            ["{{CHEATSHEET_FOLDER}}", Cheatsheet],
+                            ["{{CHEATSHEET_IMG}}", CheatsheetFile]
+                        ]
+                        ContentHTML := this.Compose(this.ImgTemplate, ContentReplacePair)
+                    Case "html":
+                        OutputDebug(CheatsheetFile)
+                        ContentHTML := FileRead(A_InitialWorkingDir . "\cheatsheet\" . Cheatsheet . "\" . CheatsheetFile, "UTF-8")
+                    }
+                ReplacePair.Push(["{{CONTENT_HTML}}", ContentHTML])
+                TabsContentHTML := TabsContentHTML . this.Compose(this.TabContentTemplate, ReplacePair)
+            }
         }
+        
         Return TabsContentHTML
     }
 
-    MakeDocHTML(Cheatsheet, CheatsheetMap) {
-        OutputDebug Cheatsheet
-        OutputDebug CheatsheetMap["Type"]
-        OutputDebug CheatsheetMap["Files"][1]
+    MakeDocHTML(MatchedCheatsheet) {
+        UsedCheatsheetFiles := Array()
+        For UsedCheatsheet in MatchedCheatsheet {
+            UsedCheatsheetFiles.Push(UsedCheatsheet[2]["Files"]*)
+        }
         ReplacePair := [
-            ["{{TABS}}", this.MakeTabsHTML(CheatsheetMap["Files"])],
-            ["{{TABS_CONTENT}}", this.MakeTabsContentHTML(Cheatsheet, CheatsheetMap)]
+            ["{{TABS}}", this.MakeTabsHTML(UsedCheatsheetFiles)],
+            ["{{TABS_CONTENT}}", this.MakeTabsContentHTML(MatchedCheatsheet)]
         ]
         DocHTML := this.Compose(this.HTMLBaseTemplate, ReplacePair)
         Return DocHTML
     }
-
-
 }
 
 GuiFadeIn(WinHwnd, TransparencyFromTo, Duration := 10) {
